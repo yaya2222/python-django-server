@@ -1,24 +1,31 @@
-from rest_framework import generics,mixins, permissions, authentication
+from rest_framework import generics,mixins #, permissions, authentication
 
-from api.authentication import TokenAuthentication
+# from api.authentication import TokenAuthentication
 
 from .models import Product
 from .serializers import ProductSerializer
-from .permissions import IsStaffEditorPermission
+# from api.permissions import IsStaffEditorPermission
+from api.mixins import  StaffEditorPermissionMixin
 
 
 
 # קבלת מוצר לפי id
-class ProductDetailAPIView(generics.RetrieveAPIView):
+class ProductDetailAPIView(
+    StaffEditorPermissionMixin,
+    generics.RetrieveAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    # permission_classes = 
+
     # lookup_field = "pk"
 
 product_detail_view=ProductDetailAPIView.as_view()
 
 
 # עידכון מוצר לפי id
-class ProductUpdataAPIView(generics.UpdateAPIView):
+class ProductUpdataAPIView(
+    StaffEditorPermissionMixin ,
+    generics.UpdateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = "pk"
@@ -32,7 +39,9 @@ product_updata_view=ProductUpdataAPIView.as_view()
 
 
 # מחיקת מוצר לפי id
-class ProductDestroyAPIView(generics.DestroyAPIView):
+class ProductDestroyAPIView(
+    StaffEditorPermissionMixin,
+    generics.DestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_field = "pk"
@@ -46,11 +55,13 @@ product_destroy_view=ProductDestroyAPIView.as_view()
 
 
 # יצירת מוצר / קבלת כל המוצרים
-class ProductListCreateApiView(generics.ListCreateAPIView):
+class ProductListCreateApiView(
+    StaffEditorPermissionMixin,
+    generics.ListCreateAPIView):
     queryset=Product.objects.all()
     serializer_class = ProductSerializer
-    authentication_classes = [authentication.SessionAuthentication,TokenAuthentication]
-    permission_classes = [ permissions.IsAdminUser,IsStaffEditorPermission]
+    # authentication_classes = [authentication.SessionAuthentication,TokenAuthentication]
+    # permission_classes = [ permissions.IsAdminUser,IsStaffEditorPermission]
 
     def perform_create(self, serializer):
         # המידע שהגיע בבקשה
