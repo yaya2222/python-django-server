@@ -4,4 +4,4 @@ from .permissions import IsStaffEditorPermission
 
 
 class StaffEditorPermissionMixin():
-    permission_class=[permissions.IsAdminUser,IsStaffEditorPermission]
+    permission_class=[permissions.IsAdminUser,IsStaffEditorPermission]  
