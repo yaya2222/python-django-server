@@ -5,12 +5,13 @@ from rest_framework import generics,mixins #, permissions, authentication
 from .models import Product
 from .serializers import ProductSerializer
 # from api.permissions import IsStaffEditorPermission
-from api.mixins import  StaffEditorPermissionMixin
+from api.mixins import  StaffEditorPermissionMixin, UserQuerySetMixin
 
 
 
 # קבלת מוצר לפי id
 class ProductDetailAPIView(
+    UserQuerySetMixin,
     StaffEditorPermissionMixin,
     generics.RetrieveAPIView):
     queryset = Product.objects.all()
@@ -24,6 +25,7 @@ product_detail_view=ProductDetailAPIView.as_view()
 
 # עידכון מוצר לפי id
 class ProductUpdataAPIView(
+    UserQuerySetMixin,
     StaffEditorPermissionMixin ,
     generics.UpdateAPIView):
     queryset = Product.objects.all()
@@ -40,6 +42,7 @@ product_updata_view=ProductUpdataAPIView.as_view()
 
 # מחיקת מוצר לפי id
 class ProductDestroyAPIView(
+    UserQuerySetMixin,
     StaffEditorPermissionMixin,
     generics.DestroyAPIView):
     queryset = Product.objects.all()
@@ -56,6 +59,7 @@ product_destroy_view=ProductDestroyAPIView.as_view()
 
 # יצירת מוצר / קבלת כל המוצרים
 class ProductListCreateApiView(
+    UserQuerySetMixin,
     StaffEditorPermissionMixin,
     generics.ListCreateAPIView):
     queryset=Product.objects.all()
@@ -67,10 +71,17 @@ class ProductListCreateApiView(
         # המידע שהגיע בבקשה
         # print(serializer.validated_data)
         title=serializer.validated_data.get("title")
-        content=serializer.validated_data.get("content")
+        content=serializer.validated_data.get("content") or None
         if content is None:
             content=title
-        serializer.save(content=content)
+        serializer.save(user=self.request.user,content=content)
+
+    # def get_queryset(self,*args,**kwargs):
+    #     qs = super().get_queryset(*args,**kwargs)
+    #     request = self.request
+    #     # print(request.user)  
+    #     return qs.filter(user=request.user)
+    
 
 product_list_create_view=ProductListCreateApiView.as_view()
 

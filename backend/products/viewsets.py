@@ -17,7 +17,7 @@ class ProductGenericViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet):
 
-    queryset = Product.objects.all()
+    queryset = Product.objects.all() 
     serializer_class = ProductSerializer
     lookup_field = "pk" #default 
 
