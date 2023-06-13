@@ -16,41 +16,45 @@ class ProductInlineSerializer(serializers.Serializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     owner = UserPublicSerializer( source="user",read_only = True)
-    related_products = ProductInlineSerializer(source="user.product_set.all",read_only=True, many=True)
+    # related_products = ProductInlineSerializer(source="user.product_set.all",read_only=True, many=True)
     
-    my_user_data = serializers.SerializerMethodField(read_only=True)
-    my_discount = serializers.SerializerMethodField(read_only=True)
-    # url = serializers.SerializerMethodField(read_only=True)
     edit_url = serializers.SerializerMethodField(read_only=True)
     url = serializers.HyperlinkedIdentityField(view_name="product-detail",lookup_field="pk")
     title = serializers.CharField(validators=[validate_title_no_hello,unique_product_title])
+    # my_user_data = serializers.SerializerMethodField(read_only=True)
+    # my_discount = serializers.SerializerMethodField(read_only=True)
+    # url = serializers.SerializerMethodField(read_only=True)
     # name = serializers.CharField(source="title", read_only=True)
     # email = serializers.EmailField(source="user.email",read_only=True)
     class Meta:
         model = Product
         fields = [
             "owner", 
-            # "email",
             "edit_url",
             'url',
             "pk",
             "title",
-            # "name",
             "content",
             "price",
             "sale_price",
-            "my_discount",
-            "related_products",
-            "my_user_data",
+            # "my_discount",
+            # "name",
+            # "email",
+            # "related_products",
+            # "my_user_data",
         ]
 
-    def get_my_user_data(self , obj):
-        # print("------------------")
-        # print(self)
-        # print(obj)
-        return{
-            "username":obj.user.username
-        }
+        
+    def get_edit_url(self,obj):
+        request = self.context.get("request")
+        if request is None:
+            return None
+        return reverse("product-edit",kwargs={"pk":obj.pk},request=request )
+
+    # def get_my_user_data(self , obj):
+    #     return{
+    #         "username":obj.user.username
+    #     }
 
 #   כהה בודקים תנאים
 #   def validate_<name field>
@@ -73,14 +77,14 @@ class ProductSerializer(serializers.ModelSerializer):
     #     instance.title=validated_data.get("title")
     #     return instance
 
-    def get_my_discount(self,obj):
-        if not hasattr(obj,"id"):
-            return None
+    # def get_my_discount(self,obj):
+    #     if not hasattr(obj,"id"):
+    #         return None
         
-        if not isinstance(obj,Product):
-            return None
+    #     if not isinstance(obj,Product):
+    #         return None
         
-        return obj.get_discount()
+    #     return obj.get_discount()
     
     # def get_url(self,obj):
     #     # return f"/api/products/{obj.pk}/"
@@ -88,10 +92,5 @@ class ProductSerializer(serializers.ModelSerializer):
     #         return None
     #     return reverse("product-detail",kwargs={"pk":obj.pk},request=request )
     
-    def get_edit_url(self,obj):
-        request = self.context.get("request")
-        if request is None:
-            return None
-        return reverse("product-edit",kwargs={"pk":obj.pk},request=request )
 
      
